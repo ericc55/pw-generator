@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const createTestButton = () => {
     const testBtn = document.createElement('button');
     testBtn.id = 'testButton';
-    testBtn.textContent = 'Test Password Strength Algorithm';
+    testBtn.textContent = 'Test Password Strength Algorithm (Beta)';
     testBtn.style.marginTop = '15px';
     testBtn.style.backgroundColor = '#6c757d';
     testBtn.style.width = '100%';
