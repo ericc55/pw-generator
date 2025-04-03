@@ -88,6 +88,17 @@
     #strength {
       font-weight: bold;
     }
+    .mode-selector {
+      margin-bottom: 20px;
+    }
+    .mode-option {
+      margin-bottom: 10px;
+    }
+    .mode-description {
+      font-size: 12px;
+      color: #666;
+      margin-left: 25px;
+    }
   </style>
 </head>
 <body>
@@ -99,7 +110,27 @@
       <button id="copy">Copy</button>
     </div>
     
-    <div class="options">
+    <div class="mode-selector">
+      <div class="mode-option">
+        <input type="radio" id="freeMode" name="passwordMode" value="free" checked>
+        <label for="freeMode">Free Mode</label>
+        <div class="mode-description">Customizable password with your preferred character types</div>
+      </div>
+      
+      <div class="mode-option">
+        <input type="radio" id="strongMode" name="passwordMode" value="strong">
+        <label for="strongMode">Strong Password</label>
+        <div class="mode-description">Format: xxxxx-xxxNx-xxxxx (Apple style)</div>
+      </div>
+      
+      <div class="mode-option">
+        <input type="radio" id="noSpecialMode" name="passwordMode" value="noSpecial">
+        <label for="noSpecialMode">Without Special Characters</label>
+        <div class="mode-description">Mixed case letters and numbers only</div>
+      </div>
+    </div>
+    
+    <div class="options" id="customOptions">
       <div class="slider-container">
         <label for="length">Length:</label>
         <input type="range" id="length" min="8" max="32" value="16">
@@ -136,6 +167,7 @@
     
     <div class="strength-container">
       <p>Password Strength: <span id="strength"></span></p>
+      <p>Entropy: <span id="entropy"></span></p>
     </div>
   </div>
   
