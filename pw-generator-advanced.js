@@ -486,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
         testBtn.textContent = 'Hide Test Results';
       }
     });
-  };
+  }; 
 
   // Event listeners
   generateBtn.addEventListener('click', generatePassword);
