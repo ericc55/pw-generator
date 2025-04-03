@@ -155,34 +155,21 @@ document.addEventListener('DOMContentLoaded', () => {
   
     // Calculate and display password strength
     const updateStrengthIndicator = (password) => {
-      let strength = 0;
-      
-      // Length check
-      if (password.length >= 12) strength += 1;
-      if (password.length >= 16) strength += 1;
-      
-      // Character variety check
-      if (/[A-Z]/.test(password)) strength += 1;
-      if (/[a-z]/.test(password)) strength += 1;
-      if (/[0-9]/.test(password)) strength += 1;
-      if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-      
       // Calculate entropy (bits of randomness)
       const selectedMode = document.querySelector('input[name="passwordMode"]:checked').value;
       let charPoolSize = 0;
+      let entropy = 0;
       
       if (selectedMode === 'strong') {
         // For strong mode: 26 lowercase letters + 10 numbers + 2 fixed hyphens
         charPoolSize = 26;
         // Entropy calculation for Apple-style format is a bit different
         // 26^6 (first section) * 26^5 * 10 * 6 (middle section with number placement) * 26^6 (last section)
-        const entropy = Math.log2(Math.pow(26, 6) * Math.pow(26, 5) * 10 * 6 * Math.pow(26, 6));
-        document.getElementById('entropy').textContent = entropy.toFixed(2) + ' bits';
+        entropy = Math.log2(Math.pow(26, 6) * Math.pow(26, 5) * 10 * 6 * Math.pow(26, 6));
       } else if (selectedMode === 'noSpecial') {
         // For no special characters mode: 26 uppercase + 26 lowercase + 10 numbers
         charPoolSize = 62;
-        const entropy = Math.log2(Math.pow(charPoolSize, password.length));
-        document.getElementById('entropy').textContent = entropy.toFixed(2) + ' bits';
+        entropy = Math.log2(Math.pow(charPoolSize, password.length));
       } else {
         // Original calculation for free mode
         if (uppercaseCheck.checked) charPoolSize += 26;
@@ -190,30 +177,67 @@ document.addEventListener('DOMContentLoaded', () => {
         if (numbersCheck.checked) charPoolSize += 10;
         if (symbolsCheck.checked) charPoolSize += 33; // Approximation for symbols
         
-        const entropy = Math.log2(Math.pow(charPoolSize, password.length));
-        document.getElementById('entropy').textContent = entropy.toFixed(2) + ' bits';
+        entropy = Math.log2(Math.pow(charPoolSize, password.length));
       }
       
-      let entropyScore = 0;
-      const entropy = parseFloat(document.getElementById('entropy').textContent);
+      document.getElementById('entropy').textContent = entropy.toFixed(2) + ' bits';
       
-      if (entropy < 28) entropyScore = 0;
-      else if (entropy < 36) entropyScore = 1;
-      else if (entropy < 60) entropyScore = 2;
-      else if (entropy < 80) entropyScore = 3;
-      else if (entropy < 100) entropyScore = 4;
-      else entropyScore = 5;
-
-      strength += entropyScore;
+      // Start with maximum score based on entropy
+      let strengthScore = 100;
       
-      // Update strength indicator
+      // Check for weak patterns and reduce points
+      
+      // 1. Check for sequential characters (like "abcdef" or "123456")
+      if (hasSequentialChars(password)) {
+        strengthScore -= 20;
+      }
+      
+      // 2. Check for repeated characters (like "aaa" or "111")
+      if (hasRepeatedChars(password)) {
+        strengthScore -= 20;
+      }
+      
+      // 3. Check for keyboard patterns (like "qwerty" or "asdfgh")
+      if (hasKeyboardPattern(password)) {
+        strengthScore -= 20;
+      }
+      
+      // 4. Check for lack of character diversity
+      const hasUpper = /[A-Z]/.test(password);
+      const hasLower = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSymbol = /[^A-Za-z0-9]/.test(password);
+      
+      const charTypeCount = [hasUpper, hasLower, hasNumber, hasSymbol].filter(Boolean).length;
+      
+      if (charTypeCount === 1) {
+        strengthScore -= 30;
+      } else if (charTypeCount === 2) {
+        strengthScore -= 15;
+      } else if (charTypeCount === 3) {
+        strengthScore -= 5;
+      }
+      
+      // 5. Check for short passwords
+      if (password.length < 8) {
+        strengthScore -= 30;
+      } else if (password.length < 12) {
+        strengthScore -= 15;
+      } else if (password.length < 16) {
+        strengthScore -= 5;
+      }
+      
+      // Ensure score doesn't go below 0
+      strengthScore = Math.max(0, strengthScore);
+      
+      // Map score to strength text and color
       let strengthText = '';
       let strengthColor = '';
       
-      if (strength < 3) {
+      if (strengthScore < 40) {
         strengthText = 'Weak';
         strengthColor = '#ff4d4d';
-      } else if (strength < 5) {
+      } else if (strengthScore < 70) {
         strengthText = 'Medium';
         strengthColor = '#ffaa00';
       } else {
@@ -223,6 +247,43 @@ document.addEventListener('DOMContentLoaded', () => {
       
       strengthIndicator.textContent = strengthText;
       strengthIndicator.style.color = strengthColor;
+    };
+  
+    // Helper function to check for sequential characters
+    const hasSequentialChars = (password) => {
+      const sequences = ['abcdefghijklmnopqrstuvwxyz', '0123456789'];
+      
+      for (const seq of sequences) {
+        for (let i = 0; i < seq.length - 2; i++) {
+          const pattern = seq.substring(i, i + 3);
+          if (password.toLowerCase().includes(pattern)) {
+            return true;
+          }
+        }
+      }
+      
+      return false;
+    };
+  
+    // Helper function to check for repeated characters
+    const hasRepeatedChars = (password) => {
+      return /(.)\1{2,}/.test(password); // Checks for 3 or more same characters in a row
+    };
+  
+    // Helper function to check for keyboard patterns
+    const hasKeyboardPattern = (password) => {
+      const keyboardPatterns = [
+        'qwert', 'asdfg', 'zxcvb', 'yuiop', 'hjkl', 'nm',
+        '12345', '67890', '!@#$%'
+      ];
+      
+      for (const pattern of keyboardPatterns) {
+        if (password.toLowerCase().includes(pattern)) {
+          return true;
+        }
+      }
+      
+      return false;
     };
   
     // Copy password to clipboard
