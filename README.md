@@ -2,6 +2,10 @@
 
 A cryptographically secure password generator with multiple modes and strength analysis.
 
+## Live Demo
+
+Visit [https://ericc55.github.io/pw-generator/](https://ericc55.github.io/pw-generator/) to try it out!
+
 ## Features
 
 - **3 Password Generation Modes**:
@@ -42,7 +46,3 @@ Use the "Test Password Strength Algorithm" button to:
 - Built with vanilla JavaScript
 - Uses the Web Crypto API for secure random number generation
 - Calculates password entropy and analyzes common weaknesses
-
-## Live Demo
-
-Visit [https://ericc55.github.io/pw-generator/](https://ericc55.github.io/pw-generator/) to try it out!
